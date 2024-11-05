@@ -2,6 +2,7 @@ package main
 import (
 	"testing"
 	"reflect"
+	// "sort"
 )
 
 func TestDataStore(t *testing.T) {
@@ -13,7 +14,7 @@ func TestDataStore(t *testing.T) {
 			false,
 		)
 
-		want := mockDataStore([]ToDoItem{item})
+		want := testDataStore([]ToDoItem{item})
 		
 		store := NewDataStore()
 		store.Add(item)
@@ -30,7 +31,7 @@ func TestDataStore(t *testing.T) {
 			false,
 		)
 
-		want := mockDataStore([]ToDoItem{item})
+		want := testDataStore([]ToDoItem{item})
 		
 		store := NewDataStore()
 		store.Add(item)
@@ -57,7 +58,7 @@ func TestDataStore(t *testing.T) {
 			true,
 		)
 
-		want := mockDataStore([]ToDoItem{updateItem})
+		want := testDataStore([]ToDoItem{updateItem})
 		
 		store := NewDataStore()
 		store.Add(initialItem)
@@ -75,7 +76,7 @@ func TestDataStore(t *testing.T) {
 			true,
 		)
 
-		want := mockDataStore([]ToDoItem{})
+		want := testDataStore([]ToDoItem{})
 		
 		store := NewDataStore()
 		err := store.Update(item)
@@ -88,9 +89,66 @@ func TestDataStore(t *testing.T) {
 			t.Errorf("want %v, got %v", want, store)
 		}
 	})
+	t.Run("Deleting item", func(t *testing.T) {
+		dataKey := Title("Keep sanity")
+		item := ConstructToDoItem(
+			Title(dataKey),
+			"high",
+			false,
+		)
+		want := testDataStore([]ToDoItem{})
+		
+		store := NewDataStore()
+		store.Add(item)
+		store.Delete(dataKey)
+
+		if !reflect.DeepEqual(want, store) {
+			t.Errorf("want %v, got %v", want, store)
+		}
+	})
+	t.Run("Deleting non-existent item", func(t *testing.T) {
+		dataKey := Title("Keep sanity")
+		want := testDataStore([]ToDoItem{})
+		
+		store := NewDataStore()
+		err := store.Delete(dataKey)
+
+		if err != ErrCannotDelete {
+			t.Fatal("Error not thrown")
+		}
+
+		if !reflect.DeepEqual(want, store) {
+			t.Errorf("want %v, got %v", want, store)
+		}
+	})
+	t.Run("Reading datastore", func(t *testing.T) {
+		titles := []string{
+			"keep sanity",
+			"lose sanity",
+			"cry",
+			"regain sanity",
+			"kill",
+		}
+		var items []ToDoItem
+		for _, title := range(titles) {
+			item := ConstructToDoItem(
+				Title(title),
+				"high",
+				false,
+			)
+			items = append(items, item)
+		}
+		store := testDataStore(items)
+
+		got := store.Read()
+
+		if !reflect.DeepEqual(items, got) {
+			t.Errorf("want %v, got %v", items, got)
+		}
+	})
 }
 
-func mockDataStore(items []ToDoItem) DataStore {
+func testDataStore(items []ToDoItem) DataStore {
 	dataMap := make(map[Title]ToDoItem)
 	for _, item := range(items) {
 		dataKey := item.Title

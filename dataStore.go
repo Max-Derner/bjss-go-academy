@@ -19,6 +19,7 @@ type ToDoItem struct {
 
 var ErrCannotAdd = errors.New("cannot add item as it already exists in datastore")
 var ErrCannotUpdate = errors.New("cannot update item as it does not exist in datastore")
+var ErrCannotDelete = errors.New("cannot delete item as it does not exist in datastore")
 
 func ConstructToDoItem(t Title, p Priority, c Complete) ToDoItem {
 	return ToDoItem{
@@ -58,4 +59,21 @@ func (d *DataStore) Update(item ToDoItem) error {
 	}
 	d.data[dataKey] = item
 	return nil
+}
+
+func (d *DataStore) Delete(t Title) error {
+	_, keyExists := d.data[t]
+	if !keyExists {
+		return ErrCannotDelete
+	}
+	delete(d.data, t)
+	return nil
+}
+
+func (d DataStore) Read() []ToDoItem {
+	var dataSlice []ToDoItem
+	for _, item := range(d.data) {
+		dataSlice = append(dataSlice, item)
+	}
+	return dataSlice
 }
