@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns:xl="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns="http://www.w3.org/2000/svg" viewBox="1313 513 900 500" width="900" height="500">
+  <defs>
+    <filter id="Shadow" filterUnits="userSpaceOnUse" x="1223" y="463">
+      <feOffset in="SourceAlpha" result="offset" dx="0" dy="2"/>
+      <feFlood flood-color="#919191" flood-opacity=".25" result="flood"/>
+      <feComposite in="flood" in2="offset" operator="in" result="color"/>
+      <feMerge>
+        <feMergeNode in="color"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="StickArrow_Marker" stroke-linejoin="miter" stroke-miterlimit="10" viewBox="-1 -4 10 8" markerWidth="10" markerHeight="8" color="black">
+      <g>
+        <path d="M 8 0 L 0 0 M 0 -3 L 8 0 L 0 3" fill="none" stroke="currentColor" stroke-width="1"/>
+      </g>
+    </marker>
+  </defs>
+  <g id="Canvas_1" stroke="none" stroke-opacity="1" fill-opacity="1" stroke-dasharray="none" fill="none">
+    <title>Canvas 1</title>
+    <rect fill="white" x="1313" y="513" width="900" height="500"/>
+    <g id="Canvas_1_Layer_1">
+      <title>Layer 1</title>
+      <g id="Group_2">
+        <title>Package</title>
+        <g id="Graphic_4" filter="url(#Shadow)">
+          <rect x="1518.8469" y="747.1744" width="130" height="93.95455" fill="#c0ffff"/>
+          <rect x="1518.8469" y="747.1744" width="130" height="93.95455" stroke="#b9c0c1" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+          <text transform="translate(1524.8469 785.1516)" fill="#515556">
+            <tspan font-family="Avenir" font-size="13" fill="#515556" x="31.9015" y="13" xml:space="preserve">REST API</tspan>
+          </text>
+        </g>
+        <g id="Graphic_3">
+          <rect x="1518.8469" y="735.1289" width="40" height="12.045455" fill="#c0ffff"/>
+          <rect x="1518.8469" y="735.1289" width="40" height="12.045455" stroke="#b9c0c1" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+        </g>
+      </g>
+      <g id="Group_5">
+        <title>Package</title>
+        <g id="Graphic_7" filter="url(#Shadow)">
+          <rect x="1830.9928" y="597.03125" width="130" height="96" fill="#ffffc0"/>
+          <rect x="1830.9928" y="597.03125" width="130" height="96" stroke="#b9c0c1" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+          <text transform="translate(1836.9928 627.03125)" fill="#515556">
+            <tspan font-family="Avenir" font-size="13" fill="#515556" x="11.5435" y="13" xml:space="preserve">In-Memory Data </tspan>
+            <tspan font-family="Avenir" font-size="13" fill="#515556" x="43.452" y="31" xml:space="preserve">Store</tspan>
+          </text>
+        </g>
+        <g id="Graphic_6">
+          <rect x="1830.9928" y="587.03125" width="40" height="10" fill="#ffffc0"/>
+          <rect x="1830.9928" y="587.03125" width="40" height="10" stroke="#b9c0c1" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+        </g>
+      </g>
+      <g id="Group_8">
+        <title>Package</title>
+        <g id="Graphic_10" filter="url(#Shadow)">
+          <rect x="1830.9928" y="745.1289" width="130" height="96" fill="#c0ffff"/>
+          <rect x="1830.9928" y="745.1289" width="130" height="96" stroke="#b9c0c1" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+          <text transform="translate(1836.9928 775.1289)" fill="#515556">
+            <tspan font-family="Avenir" font-size="13" fill="#515556" x="13.9615" y="13" xml:space="preserve">JSON File Data </tspan>
+            <tspan font-family="Avenir" font-size="13" fill="#515556" x="43.452" y="31" xml:space="preserve">Store</tspan>
+          </text>
+        </g>
+        <g id="Graphic_9">
+          <rect x="1830.9928" y="735.1289" width="40" height="10" fill="#c0ffff"/>
+          <rect x="1830.9928" y="735.1289" width="40" height="10" stroke="#b9c0c1" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+        </g>
+      </g>
+      <g id="Group_11">
+        <title>Package</title>
+        <g id="Graphic_13" filter="url(#Shadow)">
+          <rect x="1830.9928" y="895.272" width="130" height="93.95455" fill="#ffc0ff"/>
+          <rect x="1830.9928" y="895.272" width="130" height="93.95455" stroke="#b9c0c1" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+          <text transform="translate(1836.9928 933.2493)" fill="#515556">
+            <tspan font-family="Avenir" font-size="13" fill="#515556" x="17.075" y="13" xml:space="preserve">DB Data Store</tspan>
+          </text>
+        </g>
+        <g id="Graphic_12">
+          <rect x="1830.9928" y="883.2266" width="40" height="12.045455" fill="#ffc0ff"/>
+          <rect x="1830.9928" y="883.2266" width="40" height="12.045455" stroke="#b9c0c1" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+        </g>
+      </g>
+      <g id="Group_14">
+        <title>Package</title>
+        <g id="Graphic_16" filter="url(#Shadow)">
+          <rect x="1325.6608" y="599.0767" width="130" height="93.95455" fill="#ffffc0"/>
+          <rect x="1325.6608" y="599.0767" width="130" height="93.95455" stroke="#b9c0c1" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+          <text transform="translate(1331.6608 637.054)" fill="#515556">
+            <tspan font-family="Avenir" font-size="13" fill="#515556" x="35.158" y="13" xml:space="preserve">CLI App</tspan>
+          </text>
+        </g>
+        <g id="Graphic_15">
+          <rect x="1325.6608" y="587.03125" width="40" height="12.045455" fill="#ffffc0"/>
+          <rect x="1325.6608" y="587.03125" width="40" height="12.045455" stroke="#b9c0c1" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+        </g>
+      </g>
+      <g id="Group_17">
+        <title>Package</title>
+        <g id="Graphic_19" filter="url(#Shadow)">
+          <rect x="1325.6608" y="901.9009" width="130" height="93.95455" fill="#c0ffc0"/>
+          <rect x="1325.6608" y="901.9009" width="130" height="93.95455" stroke="#b9c0c1" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+          <text transform="translate(1331.6608 939.8782)" fill="#515556">
+            <tspan font-family="Avenir" font-size="13" fill="#515556" x="31.1345" y="13" xml:space="preserve">Web App</tspan>
+          </text>
+        </g>
+        <g id="Graphic_18">
+          <title>Rectangle</title>
+          <rect x="1325.6608" y="889.8555" width="40" height="12.045455" fill="#c0ffc0"/>
+          <rect x="1325.6608" y="889.8555" width="40" height="12.045455" stroke="#b9c0c1" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+        </g>
+      </g>
+      <g id="Line_20">
+        <path d="M 1390.6608 693.03125 L 1390.6608 788.1289 L 1508.9469 788.1289" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1.0,4.0" stroke-width="1"/>
+      </g>
+      <g id="Line_23">
+        <path d="M 1390.6608 889.8555 L 1390.6608 788.1289 L 1508.9469 788.1289" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1.0,4.0" stroke-width="1"/>
+      </g>
+      <g id="Line_24">
+        <path d="M 1648.8469 788.1289 L 1739.9199 788.1289 L 1739.9199 640.03125 L 1821.0928 640.03125" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1.0,4.0" stroke-width="1"/>
+      </g>
+      <g id="Line_25">
+        <line x1="1648.8469" y1="788.1289" x2="1821.0928" y2="788.1289" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1.0,4.0" stroke-width="1"/>
+      </g>
+      <g id="Line_26">
+        <path d="M 1648.8469 788.1289 L 1739.9199 788.1289 L 1739.9199 936.2266 L 1821.0928 936.2266" marker-end="url(#StickArrow_Marker)" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1.0,4.0" stroke-width="1"/>
+      </g>
+      <g id="Group_35">
+        <g id="Graphic_27">
+          <rect x="2053.3678" y="820.5859" width="130" height="30.635417" fill="#ffffc0"/>
+          <rect x="2053.3678" y="820.5859" width="130" height="30.635417" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(2058.3678 826.6796)" fill="black">
+            <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="50.664" y="15" xml:space="preserve">V1</tspan>
+          </text>
+        </g>
+        <g id="Graphic_30">
+          <rect x="2053.3678" y="861.263" width="130" height="30.635417" fill="#c0ffff"/>
+          <rect x="2053.3678" y="861.263" width="130" height="30.635417" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(2058.3678 867.3567)" fill="black">
+            <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="50.664" y="15" xml:space="preserve">V2</tspan>
+          </text>
+        </g>
+        <g id="Graphic_31">
+          <rect x="2053.3678" y="901.9401" width="130" height="30.635417" fill="#c0ffc0"/>
+          <rect x="2053.3678" y="901.9401" width="130" height="30.635417" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(2058.3678 908.0338)" fill="black">
+            <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="50.664" y="15" xml:space="preserve">V3</tspan>
+          </text>
+        </g>
+        <g id="Graphic_32">
+          <rect x="2053.3678" y="942.6172" width="130" height="30.635417" fill="#ffc0ff"/>
+          <rect x="2053.3678" y="942.6172" width="130" height="30.635417" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(2058.3678 948.7109)" fill="black">
+            <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="50.664" y="15" xml:space="preserve">V4</tspan>
+          </text>
+        </g>
+        <g id="Graphic_34">
+          <rect x="2036.3392" y="779.9089" width="164" height="209.3177" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+          <text transform="translate(2041.3392 784.9089)" fill="black">
+            <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="50.176" y="15" xml:space="preserve">Legend</tspan>
+          </text>
+        </g>
+      </g>
+      <g id="Graphic_36">
+        <text transform="translate(1330.6608 535.1445)" fill="black">
+          <tspan font-family="Helvetica Neue" font-size="16" fill="black" x="58264504e-20" y="16" xml:space="preserve">To Do Application</tspan>
+        </text>
+      </g>
+    </g>
+  </g>
+</svg>
