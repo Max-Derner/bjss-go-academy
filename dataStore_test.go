@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/google/uuid"
 	"reflect"
 	"testing"
 )
@@ -52,18 +53,18 @@ func TestDataStore(t *testing.T) {
 			"high",
 			false,
 		)
-		updateItem := ConstructToDoItem(
-			Title(dataKey),
-			"high",
-			true,
-		)
+		updateItem := initialItem
+		updateItem.Complete = true
 
 		want := testDataStore([]ToDoItem{updateItem})
 		
 		store := NewDataStore()
 		store.Add(initialItem)
-		store.Update(updateItem)
+		err := store.Update(updateItem)
 
+		if err != nil {
+			t.Fatalf("Unexpected error: %v", err)
+		}
 		if !reflect.DeepEqual(want, store) {
 			t.Errorf("want %v, got %v", want, store)
 		}
@@ -90,12 +91,12 @@ func TestDataStore(t *testing.T) {
 		}
 	})
 	t.Run("Deleting item", func(t *testing.T) {
-		dataKey := Title("Keep sanity")
 		item := ConstructToDoItem(
-			Title(dataKey),
+			"Keep sanity",
 			"high",
 			false,
 		)
+		dataKey := item.Id
 		want := testDataStore([]ToDoItem{})
 		
 		store := NewDataStore()
@@ -107,11 +108,10 @@ func TestDataStore(t *testing.T) {
 		}
 	})
 	t.Run("Deleting non-existent item", func(t *testing.T) {
-		dataKey := Title("Keep sanity")
 		want := testDataStore([]ToDoItem{})
 		
 		store := NewDataStore()
-		err := store.Delete(dataKey)
+		err := store.Delete(Id(uuid.New()))
 
 		if err != ErrCannotDelete {
 			t.Fatal("Error not thrown")
@@ -179,10 +179,10 @@ func populatedToDoList() []ToDoItem {
 }
 
 func testDataStore(items []ToDoItem) DataStore {
-	dataMap := make(map[Title]ToDoItem)
+	dataMap := make(map[Id]ToDoItem)
 	for _, item := range(items) {
-		dataKey := item.Title
-		dataMap[Title(dataKey)] = item
+		dataKey := item.Id
+		dataMap[dataKey] = item
 	}
 	return DataStore{
 		dataMap,

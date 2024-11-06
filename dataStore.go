@@ -32,18 +32,18 @@ func ConstructToDoItem(t Title, p Priority, c Complete) ToDoItem {
 }
 
 func NewDataStore() DataStore {
-	dataMap := make(map[Title]ToDoItem)
+	dataMap := make(map[Id]ToDoItem)
 	return DataStore{
 		dataMap,
 	}
 }
 
 type DataStore struct {
-	data map[Title]ToDoItem
+	data map[Id]ToDoItem
 }
 
 func (d *DataStore) Add(item ToDoItem) error {
-	dataKey := item.Title
+	dataKey := item.Id
 	_, keyExists := d.data[dataKey]
 	if keyExists {
 		return ErrCannotAdd
@@ -53,7 +53,7 @@ func (d *DataStore) Add(item ToDoItem) error {
 }
 
 func (d *DataStore) Update(item ToDoItem) error {
-	dataKey := item.Title
+	dataKey := item.Id
 	_, keyExists := d.data[dataKey]
 	if !keyExists {
 		return ErrCannotUpdate
@@ -62,12 +62,12 @@ func (d *DataStore) Update(item ToDoItem) error {
 	return nil
 }
 
-func (d *DataStore) Delete(t Title) error {
-	_, keyExists := d.data[t]
+func (d *DataStore) Delete(i Id) error {
+	_, keyExists := d.data[i]
 	if !keyExists {
 		return ErrCannotDelete
 	}
-	delete(d.data, t)
+	delete(d.data, i)
 	return nil
 }
 
@@ -80,9 +80,8 @@ func (d DataStore) Read() []ToDoItem {
 }
 
 func (d *DataStore) Query(t Title) (error, ToDoItem) {
-	value, keyExists := d.data[t]
-	if !keyExists {
-		return ErrCannotQuery, value
+	for _, item := range(d.data) {
+		if item.Title == t {return nil, item}
 	}
-	return nil, value
+	return ErrCannotQuery, ToDoItem{}
 }
