@@ -5,18 +5,9 @@ import (
 	"testing"
 )
 
-type FakeReader struct {
-	output string
-}
-
-func (r FakeReader) Read(p []byte) (n int, err error) {
-	p = []byte(r.output)
-	return len(p), nil
-}
-
 func TestFInput(t *testing.T) {
-	want := "red!"
-	r := strings.NewReader(want)
+	want := "I'm red!"
+	r := strings.NewReader(want + "\n")
 
 	got := FInput(r)
 
