@@ -34,4 +34,13 @@ func CliPromptForToDoItem() ToDoItem {
 	return ConstructToDoItem(title, priority, false)
 }
 
+func printToDoItem(item ToDoItem) {
+	var status string
+	if item.Complete {
+		status = "complete"
+	} else {
+		status = "incomplete"
+	}
+	fmt.Printf("| %s | %s | %s |\n", item.Title, item.Priority, status)
+}
 
