@@ -172,6 +172,31 @@ func TestDataStoreAPIAdd(t *testing.T) {
 		}
 	})
 }
+func TestDataStoreAPIAddConcurrency(t *testing.T) {
+	db := NewEmptyDataStore()
+	title := Title("Something")
+	priority := Priority("something else")
+	expectedNumItems := 1_000
+	finChan := make(chan struct{})
+	for i := 0; i < expectedNumItems; i++ {
+		go func(database dataStore, fin chan struct{}) {
+			item := ConstructToDoItem(
+				title,
+				priority,
+				false,
+			)
+			db.Add(item)
+			fin <- struct{}{}
+		}(db, finChan)
+	}
+	for i := 0; i < expectedNumItems; i++ {
+		<- finChan
+	}
+
+	if len(db.data) != expectedNumItems {
+		t.Errorf("Incorrect number of items found in DB! got %v want %v", len(db.data), expectedNumItems)
+	}
+}
 func TestDataStoreDirectUpdate(t *testing.T) {
 	t.Run("Update value in store", func(t *testing.T) {
 		dataKey := "Keep sanity"
