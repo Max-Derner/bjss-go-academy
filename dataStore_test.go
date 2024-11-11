@@ -1,9 +1,9 @@
 package main
 
 import (
+	"errors"
 	"reflect"
 	"testing"
-	"errors"
 )
 
 func TestDataStoreDirectAdd(t *testing.T) {
@@ -430,7 +430,7 @@ var ErrOverWritten = errors.New("item overwritten")
 func toDoMapper(data []ToDoItem) (error, map[Id]ToDoItem) {
 	dataMap := make(map[Id]ToDoItem)
 	var err error
-	for _, item := range(data) {
+	for _, item := range data {
 		_, itemExists := dataMap[item.Id]
 		if itemExists {
 			err = ErrOverWritten
@@ -510,7 +510,7 @@ func TestEqualData(t *testing.T) {
 		}
 	})
 	t.Run("data is still not equal", func(t *testing.T) {
-		items := populatedToDoList()		
+		items := populatedToDoList()
 		dataErr, data := toDoMapper(items)
 		if dataErr != nil {
 			t.Fatalf("setup failed! -> %v", dataErr)
@@ -521,7 +521,7 @@ func TestEqualData(t *testing.T) {
 			t.Fatalf("setup failed! -> %v", dataErr)
 		}
 		b := newDataStore(data)
-		
+
 		if equalData(a.data, b.data) {
 			t.Errorf("Data was considered equal! %v == %v", a.data, b.data)
 		}
