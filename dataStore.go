@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-
 	"github.com/google/uuid"
 )
 
@@ -31,6 +30,7 @@ var ErrCannotAdd = errors.New("cannot add item as it already exists in datastore
 var ErrCannotUpdate = errors.New("cannot update item as it does not exist in datastore")
 var ErrCannotDelete = errors.New("cannot delete item as it does not exist in datastore")
 var ErrCannotQuery = errors.New("cannot query, as item does not exist in datastore")
+var ErrUnknownAction = errors.New("Unknown action")
 
 type action int64
 
@@ -67,7 +67,7 @@ type dataStore struct {
 	requests chan dbRequest
 }
 
-func newDataStore(data map[Id]ToDoItem) dataStore {
+func NewDataStore(data map[Id]ToDoItem) dataStore {
 	db := dataStore{
 		data,
 		make(chan dbRequest),
@@ -76,9 +76,9 @@ func newDataStore(data map[Id]ToDoItem) dataStore {
 	return db
 }
 
-func newEmptyDataStore() dataStore {
+func NewEmptyDataStore() dataStore {
 	data := make(map[Id]ToDoItem)
-	return newDataStore(data)
+	return NewDataStore(data)
 }
 
 func (d *dataStore) act() {
@@ -96,6 +96,8 @@ func (d *dataStore) act() {
 		case Read:
 			data := d.read()
 			request.complete(nil, data)
+		default:
+			request.complete(ErrUnknownAction, []ToDoItem{})
 		}
 	}
 }
@@ -110,6 +112,20 @@ func (d *dataStore) add(item ToDoItem) error {
 	return nil
 }
 
+func (d dataStore) Add(item ToDoItem) error {
+	errChan := make(chan error)
+	dataChan := make(chan []ToDoItem)
+	d.requests <- dbRequest{
+		Add,
+		item,
+		errChan,
+		dataChan,
+	}
+	err := <-errChan
+	<-dataChan
+	return err
+}
+
 func (d *dataStore) update(item ToDoItem) error {
 	dataKey := item.Id
 	_, keyExists := d.data[dataKey]
@@ -118,6 +134,20 @@ func (d *dataStore) update(item ToDoItem) error {
 	}
 	d.data[dataKey] = item
 	return nil
+}
+
+func (d dataStore) Update(item ToDoItem) error {
+	errChan := make(chan error)
+	dataChan := make(chan []ToDoItem)
+	d.requests <- dbRequest{
+		Update,
+		item,
+		errChan,
+		dataChan,
+	}
+	err := <-errChan
+	<-dataChan
+	return err
 }
 
 func (d *dataStore) delete(item ToDoItem) error {
@@ -129,10 +159,38 @@ func (d *dataStore) delete(item ToDoItem) error {
 	return nil
 }
 
+func (d dataStore) Delete(item ToDoItem) error {
+	errChan := make(chan error)
+	dataChan := make(chan []ToDoItem)
+	d.requests <- dbRequest{
+		Delete,
+		item,
+		errChan,
+		dataChan,
+	}
+	err := <-errChan
+	<-dataChan
+	return err
+}
+
 func (d dataStore) read() []ToDoItem {
 	var dataSlice []ToDoItem
 	for _, item := range d.data {
 		dataSlice = append(dataSlice, item)
 	}
 	return dataSlice
+}
+
+func (d dataStore) Read() []ToDoItem {
+	errChan := make(chan error)
+	dataChan := make(chan []ToDoItem)
+	d.requests <- dbRequest{
+		Read,
+		ToDoItem{},
+		errChan,
+		dataChan,
+	}
+	<-errChan
+	data := <-dataChan
+	return data
 }

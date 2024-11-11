@@ -19,9 +19,9 @@ func TestDataStoreDirectAdd(t *testing.T) {
 		if err != nil {
 			t.Fatalf("setup failed! -> %v", err)
 		}
-		want := newDataStore(data)
+		want := NewDataStore(data)
 
-		store := newEmptyDataStore()
+		store := NewEmptyDataStore()
 		store.add(item)
 
 		if !reflect.DeepEqual(want.data, store.data) {
@@ -40,9 +40,9 @@ func TestDataStoreDirectAdd(t *testing.T) {
 		if err != nil {
 			t.Fatalf("setup failed! -> %v", err)
 		}
-		want := newDataStore(data)
+		want := NewDataStore(data)
 
-		store := newEmptyDataStore()
+		store := NewEmptyDataStore()
 		store.add(item)
 		err = store.add(item)
 
@@ -69,9 +69,9 @@ func TestDataStoreChannelAdd(t *testing.T) {
 		if err != nil {
 			t.Fatalf("setup failed! -> %v", err)
 		}
-		want := newDataStore(data)
+		want := NewDataStore(data)
 
-		store := newEmptyDataStore()
+		store := NewEmptyDataStore()
 		store.requests <- dbRequest{
 			Add,
 			item,
@@ -100,9 +100,9 @@ func TestDataStoreChannelAdd(t *testing.T) {
 		if dataErr != nil {
 			t.Fatalf("setup failed! -> %v", dataErr)
 		}
-		want := newDataStore(data)
+		want := NewDataStore(data)
 
-		store := newEmptyDataStore()
+		store := NewEmptyDataStore()
 		store.add(item)
 		store.requests <- dbRequest{
 			Add,
@@ -116,6 +116,58 @@ func TestDataStoreChannelAdd(t *testing.T) {
 			t.Errorf("Unexpected error thrown! got %v want %v", err, ErrCannotAdd)
 		}
 		if !equalData(want.data, store.data) {
+			t.Errorf("want %v, got %v", want, store)
+		}
+	})
+}
+func TestDataStoreAPIAdd(t *testing.T) {
+	t.Run("Add value to store", func(t *testing.T) {
+		dataKey := "Keep sanity"
+		item := ConstructToDoItem(
+			Title(dataKey),
+			"high",
+			false,
+		)
+
+		dataErr, data := toDoMapper([]ToDoItem{item})
+		if dataErr != nil {
+			t.Fatalf("setup failed! -> %v", dataErr)
+		}
+		want := NewDataStore(data)
+
+		store := NewEmptyDataStore()
+		err := store.Add(item)
+
+		if err != nil {
+			t.Errorf("Unexpected error! -> %v", err)
+		}
+		if !reflect.DeepEqual(want.data, store.data) {
+			t.Errorf("want %v, got %v", want, store)
+		}
+	})
+	t.Run("Add existing value to store", func(t *testing.T) {
+		dataKey := "Keep sanity"
+		item := ConstructToDoItem(
+			Title(dataKey),
+			"high",
+			false,
+		)
+
+		err, data := toDoMapper([]ToDoItem{item})
+		if err != nil {
+			t.Fatalf("setup failed! -> %v", err)
+		}
+		want := NewDataStore(data)
+
+		store := NewEmptyDataStore()
+		store.Add(item)
+		err = store.Add(item)
+
+		if err != ErrCannotAdd {
+			t.Fatal("Error not thrown")
+		}
+
+		if !reflect.DeepEqual(want.data, store.data) {
 			t.Errorf("want %v, got %v", want, store)
 		}
 	})
@@ -135,9 +187,9 @@ func TestDataStoreDirectUpdate(t *testing.T) {
 		if dataErr != nil {
 			t.Fatalf("setup failed! -> %v", dataErr)
 		}
-		want := newDataStore(data)
+		want := NewDataStore(data)
 
-		store := newEmptyDataStore()
+		store := NewEmptyDataStore()
 		store.add(initialItem)
 		err := store.update(updateItem)
 
@@ -160,9 +212,9 @@ func TestDataStoreDirectUpdate(t *testing.T) {
 		if dataErr != nil {
 			t.Fatalf("setup failed! -> %v", dataErr)
 		}
-		want := newDataStore(data)
+		want := NewDataStore(data)
 
-		store := newEmptyDataStore()
+		store := NewEmptyDataStore()
 		err := store.update(item)
 
 		if err != ErrCannotUpdate {
@@ -188,9 +240,9 @@ func TestDataStoreChannelUpdate(t *testing.T) {
 		if dataErr != nil {
 			t.Fatalf("setup failed! -> %v", dataErr)
 		}
-		want := newDataStore(data)
+		want := NewDataStore(data)
 
-		store := newEmptyDataStore()
+		store := NewEmptyDataStore()
 		store.add(initialItem)
 		errReturnChan := make(chan error)
 		dataReturnChan := make(chan []ToDoItem)
@@ -220,9 +272,9 @@ func TestDataStoreChannelUpdate(t *testing.T) {
 		if dataErr != nil {
 			t.Fatalf("setup failed! -> %v", dataErr)
 		}
-		want := newDataStore(data)
+		want := NewDataStore(data)
 
-		store := newEmptyDataStore()
+		store := NewEmptyDataStore()
 		errReturnChan := make(chan error)
 		dataReturnChan := make(chan []ToDoItem)
 		store.requests <- dbRequest{
@@ -232,6 +284,60 @@ func TestDataStoreChannelUpdate(t *testing.T) {
 			dataReturnChan,
 		}
 		err := <-errReturnChan
+
+		if err != ErrCannotUpdate {
+			t.Fatal("Error not thrown")
+		}
+
+		if !reflect.DeepEqual(want.data, store.data) {
+			t.Errorf("want %v, got %v", want, store)
+		}
+	})
+}
+func TestDataStoreAPIUpdate(t *testing.T) {
+	t.Run("Update value in store", func(t *testing.T) {
+		dataKey := "Keep sanity"
+		initialItem := ConstructToDoItem(
+			Title(dataKey),
+			"high",
+			false,
+		)
+		updateItem := initialItem
+		updateItem.Complete = true
+
+		dataErr, data := toDoMapper([]ToDoItem{updateItem})
+		if dataErr != nil {
+			t.Fatalf("setup failed! -> %v", dataErr)
+		}
+		want := NewDataStore(data)
+
+		store := NewEmptyDataStore()
+		store.add(initialItem)
+		err := store.Update(updateItem)
+
+		if err != nil {
+			t.Fatalf("Unexpected error: %v", err)
+		}
+		if !reflect.DeepEqual(want.data, store.data) {
+			t.Errorf("want %v, got %v", want, store)
+		}
+	})
+	t.Run("Update non-existent item in store", func(t *testing.T) {
+		dataKey := "Keep sanity"
+		item := ConstructToDoItem(
+			Title(dataKey),
+			"high",
+			true,
+		)
+
+		dataErr, data := toDoMapper([]ToDoItem{})
+		if dataErr != nil {
+			t.Fatalf("setup failed! -> %v", dataErr)
+		}
+		want := NewDataStore(data)
+
+		store := NewEmptyDataStore()
+		err := store.Update(item)
 
 		if err != ErrCannotUpdate {
 			t.Fatal("Error not thrown")
@@ -253,9 +359,9 @@ func TestDataStoreDirectDelete(t *testing.T) {
 		if dataErr != nil {
 			t.Fatalf("setup failed! -> %v", dataErr)
 		}
-		want := newDataStore(data)
+		want := NewDataStore(data)
 
-		store := newEmptyDataStore()
+		store := NewEmptyDataStore()
 		store.add(item)
 		err := store.delete(item)
 
@@ -277,9 +383,9 @@ func TestDataStoreDirectDelete(t *testing.T) {
 		if dataErr != nil {
 			t.Fatalf("setup failed! -> %v", dataErr)
 		}
-		want := newDataStore(data)
+		want := NewDataStore(data)
 
-		store := newEmptyDataStore()
+		store := NewEmptyDataStore()
 		err := store.delete(item)
 
 		if err != ErrCannotDelete {
@@ -302,9 +408,9 @@ func TestDataStoreChannelDelete(t *testing.T) {
 		if dataErr != nil {
 			t.Fatalf("setup failed! -> %v", dataErr)
 		}
-		want := newDataStore(data)
+		want := NewDataStore(data)
 
-		store := newEmptyDataStore()
+		store := NewEmptyDataStore()
 		store.add(item)
 		errReturnChan := make(chan error)
 		dataReturnChan := make(chan []ToDoItem)
@@ -334,9 +440,9 @@ func TestDataStoreChannelDelete(t *testing.T) {
 		if dataErr != nil {
 			t.Fatalf("setup failed! -> %v", dataErr)
 		}
-		want := newDataStore(data)
+		want := NewDataStore(data)
 
-		store := newEmptyDataStore()
+		store := NewEmptyDataStore()
 		errReturnChan := make(chan error)
 		dataReturnChan := make(chan []ToDoItem)
 		store.requests <- dbRequest{
@@ -356,6 +462,55 @@ func TestDataStoreChannelDelete(t *testing.T) {
 		}
 	})
 }
+func TestDataStoreAPIDelete(t *testing.T) {
+	t.Run("Deleting item", func(t *testing.T) {
+		item := ConstructToDoItem(
+			"Keep sanity",
+			"high",
+			false,
+		)
+		dataErr, data := toDoMapper([]ToDoItem{})
+		if dataErr != nil {
+			t.Fatalf("setup failed! -> %v", dataErr)
+		}
+		want := NewDataStore(data)
+
+		store := NewEmptyDataStore()
+		store.add(item)
+		err := store.Delete(item)
+
+		if err != nil {
+			t.Errorf("Unexpected error thrown! Got: %v", err)
+		}
+
+		if !reflect.DeepEqual(want.data, store.data) {
+			t.Errorf("want %v, got %v", want, store)
+		}
+	})
+	t.Run("Deleting non-existent item", func(t *testing.T) {
+		item := ConstructToDoItem(
+			"Keep sanity",
+			"high",
+			false,
+		)
+		dataErr, data := toDoMapper([]ToDoItem{})
+		if dataErr != nil {
+			t.Fatalf("setup failed! -> %v", dataErr)
+		}
+		want := NewDataStore(data)
+
+		store := NewEmptyDataStore()
+		err := store.Delete(item)
+
+		if err != ErrCannotDelete {
+			t.Fatal("Error not thrown")
+		}
+
+		if !reflect.DeepEqual(want.data, store.data) {
+			t.Errorf("want %v, got %v", want, store)
+		}
+	})
+}
 func TestDataStoreDirectRead(t *testing.T) {
 	t.Run("Reading datastore", func(t *testing.T) {
 		items := populatedToDoList()
@@ -363,7 +518,7 @@ func TestDataStoreDirectRead(t *testing.T) {
 		if dataErr != nil {
 			t.Fatalf("setup failed! -> %v", dataErr)
 		}
-		store := newDataStore(data)
+		store := NewDataStore(data)
 
 		got := store.read()
 
@@ -379,7 +534,7 @@ func TestDataStoreChannelRead(t *testing.T) {
 		if dataErr != nil {
 			t.Fatalf("setup failed! -> %v", dataErr)
 		}
-		store := newDataStore(data)
+		store := NewDataStore(data)
 
 		errReturnChan := make(chan error)
 		dataReturnChan := make(chan []ToDoItem)
@@ -399,6 +554,22 @@ func TestDataStoreChannelRead(t *testing.T) {
 		if got == nil || reflect.DeepEqual(got, []ToDoItem{}) {
 			t.Fatal("No data returned!")
 		}
+		if !equalSlicesNoOrder(items, got) {
+			t.Errorf("want %v, got %v", items, got)
+		}
+	})
+}
+func TestDataStoreAPIRead(t *testing.T) {
+	t.Run("Reading datastore", func(t *testing.T) {
+		items := populatedToDoList()
+		dataErr, data := toDoMapper(items)
+		if dataErr != nil {
+			t.Fatalf("setup failed! -> %v", dataErr)
+		}
+		store := NewDataStore(data)
+
+		got := store.Read()
+
 		if !equalSlicesNoOrder(items, got) {
 			t.Errorf("want %v, got %v", items, got)
 		}
@@ -483,12 +654,12 @@ func TestEqualData(t *testing.T) {
 		if dataErr != nil {
 			t.Fatalf("setup failed! -> %v", dataErr)
 		}
-		a := newDataStore(data)
+		a := NewDataStore(data)
 		dataErr, data = toDoMapper(items)
 		if dataErr != nil {
 			t.Fatalf("setup failed! -> %v", dataErr)
 		}
-		b := newDataStore(data)
+		b := NewDataStore(data)
 		if !equalData(a.data, b.data) {
 			t.Errorf("Data was not considered equal! %v != %v", a.data, b.data)
 		}
@@ -499,12 +670,12 @@ func TestEqualData(t *testing.T) {
 		if dataErr != nil {
 			t.Fatalf("setup failed! -> %v", dataErr)
 		}
-		a := newDataStore(data)
+		a := NewDataStore(data)
 		dataErr, data = toDoMapper(items[:2])
 		if dataErr != nil {
 			t.Fatalf("setup failed! -> %v", dataErr)
 		}
-		b := newDataStore(data)
+		b := NewDataStore(data)
 		if equalData(a.data, b.data) {
 			t.Errorf("Data was considered equal! %v == %v", a.data, b.data)
 		}
@@ -515,12 +686,12 @@ func TestEqualData(t *testing.T) {
 		if dataErr != nil {
 			t.Fatalf("setup failed! -> %v", dataErr)
 		}
-		a := newDataStore(data)
+		a := NewDataStore(data)
 		dataErr, data = toDoMapper(append([]ToDoItem{items[1]}, items[:1]...))
 		if dataErr != nil {
 			t.Fatalf("setup failed! -> %v", dataErr)
 		}
-		b := newDataStore(data)
+		b := NewDataStore(data)
 
 		if equalData(a.data, b.data) {
 			t.Errorf("Data was considered equal! %v == %v", a.data, b.data)
