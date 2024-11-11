@@ -3,6 +3,7 @@ package main
 import (
 	"reflect"
 	"testing"
+	"errors"
 )
 
 func TestDataStoreDirectAdd(t *testing.T) {
@@ -14,10 +15,14 @@ func TestDataStoreDirectAdd(t *testing.T) {
 			false,
 		)
 
-		want := testDataStore([]ToDoItem{item})
-		
-		store := NewDataStore()
-		store.Add(item)
+		err, data := toDoMapper([]ToDoItem{item})
+		if err != nil {
+			t.Fatalf("setup failed! -> %v", err)
+		}
+		want := newDataStore(data)
+
+		store := newEmptyDataStore()
+		store.add(item)
 
 		if !reflect.DeepEqual(want.data, store.data) {
 			t.Errorf("want %v, got %v", want, store)
@@ -31,11 +36,15 @@ func TestDataStoreDirectAdd(t *testing.T) {
 			false,
 		)
 
-		want := testDataStore([]ToDoItem{item})
-		
-		store := NewDataStore()
-		store.Add(item)
-		err := store.Add(item)
+		err, data := toDoMapper([]ToDoItem{item})
+		if err != nil {
+			t.Fatalf("setup failed! -> %v", err)
+		}
+		want := newDataStore(data)
+
+		store := newEmptyDataStore()
+		store.add(item)
+		err = store.add(item)
 
 		if err != ErrCannotAdd {
 			t.Fatal("Error not thrown")
@@ -56,17 +65,21 @@ func TestDataStoreChannelAdd(t *testing.T) {
 		)
 		errChan := make(chan error)
 		dataChan := make(chan []ToDoItem)
-		want := testDataStore([]ToDoItem{item})
-		
-		store := NewDataStore()
-		store.requests <- DbRequest{
+		err, data := toDoMapper([]ToDoItem{item})
+		if err != nil {
+			t.Fatalf("setup failed! -> %v", err)
+		}
+		want := newDataStore(data)
+
+		store := newEmptyDataStore()
+		store.requests <- dbRequest{
 			Add,
 			item,
 			errChan,
 			dataChan,
 		}
 
-		err := <- errChan
+		err = <-errChan
 		if err != nil {
 			t.Errorf("Unexpected error thrown! %v", err)
 		}
@@ -83,18 +96,22 @@ func TestDataStoreChannelAdd(t *testing.T) {
 		)
 		errChan := make(chan error)
 		dataChan := make(chan []ToDoItem)
-		want := testDataStore([]ToDoItem{item})
-		
-		store := NewDataStore()
-		store.Add(item)
-		store.requests <- DbRequest{
+		dataErr, data := toDoMapper([]ToDoItem{item})
+		if dataErr != nil {
+			t.Fatalf("setup failed! -> %v", dataErr)
+		}
+		want := newDataStore(data)
+
+		store := newEmptyDataStore()
+		store.add(item)
+		store.requests <- dbRequest{
 			Add,
 			item,
 			errChan,
 			dataChan,
 		}
 
-		err := <- errChan
+		err := <-errChan
 		if err != ErrCannotAdd {
 			t.Errorf("Unexpected error thrown! got %v want %v", err, ErrCannotAdd)
 		}
@@ -114,11 +131,15 @@ func TestDataStoreDirectUpdate(t *testing.T) {
 		updateItem := initialItem
 		updateItem.Complete = true
 
-		want := testDataStore([]ToDoItem{updateItem})
-		
-		store := NewDataStore()
-		store.Add(initialItem)
-		err := store.Update(updateItem)
+		dataErr, data := toDoMapper([]ToDoItem{updateItem})
+		if dataErr != nil {
+			t.Fatalf("setup failed! -> %v", dataErr)
+		}
+		want := newDataStore(data)
+
+		store := newEmptyDataStore()
+		store.add(initialItem)
+		err := store.update(updateItem)
 
 		if err != nil {
 			t.Fatalf("Unexpected error: %v", err)
@@ -135,10 +156,14 @@ func TestDataStoreDirectUpdate(t *testing.T) {
 			true,
 		)
 
-		want := testDataStore([]ToDoItem{})
-		
-		store := NewDataStore()
-		err := store.Update(item)
+		dataErr, data := toDoMapper([]ToDoItem{})
+		if dataErr != nil {
+			t.Fatalf("setup failed! -> %v", dataErr)
+		}
+		want := newDataStore(data)
+
+		store := newEmptyDataStore()
+		err := store.update(item)
 
 		if err != ErrCannotUpdate {
 			t.Fatal("Error not thrown")
@@ -159,19 +184,23 @@ func TestDataStoreChannelUpdate(t *testing.T) {
 		)
 		updateItem := initialItem
 		updateItem.Complete = true
-		want := testDataStore([]ToDoItem{updateItem})
-		
-		store := NewDataStore()
-		store.Add(initialItem)
+		dataErr, data := toDoMapper([]ToDoItem{updateItem})
+		if dataErr != nil {
+			t.Fatalf("setup failed! -> %v", dataErr)
+		}
+		want := newDataStore(data)
+
+		store := newEmptyDataStore()
+		store.add(initialItem)
 		errReturnChan := make(chan error)
 		dataReturnChan := make(chan []ToDoItem)
-		store.requests <- DbRequest{
+		store.requests <- dbRequest{
 			Update,
 			updateItem,
 			errReturnChan,
 			dataReturnChan,
 		}
-		err := <- errReturnChan
+		err := <-errReturnChan
 		if err != nil {
 			t.Fatalf("Unexpected error: %v", err)
 		}
@@ -187,18 +216,22 @@ func TestDataStoreChannelUpdate(t *testing.T) {
 			true,
 		)
 
-		want := testDataStore([]ToDoItem{})
-		
-		store := NewDataStore()
+		dataErr, data := toDoMapper([]ToDoItem{})
+		if dataErr != nil {
+			t.Fatalf("setup failed! -> %v", dataErr)
+		}
+		want := newDataStore(data)
+
+		store := newEmptyDataStore()
 		errReturnChan := make(chan error)
 		dataReturnChan := make(chan []ToDoItem)
-		store.requests <- DbRequest{
+		store.requests <- dbRequest{
 			Update,
 			item,
 			errReturnChan,
 			dataReturnChan,
 		}
-		err := <- errReturnChan
+		err := <-errReturnChan
 
 		if err != ErrCannotUpdate {
 			t.Fatal("Error not thrown")
@@ -216,12 +249,16 @@ func TestDataStoreDirectDelete(t *testing.T) {
 			"high",
 			false,
 		)
-		want := testDataStore([]ToDoItem{})
-		
-		store := NewDataStore()
-		store.Add(item)
-		err := store.Delete(item)
-		
+		dataErr, data := toDoMapper([]ToDoItem{})
+		if dataErr != nil {
+			t.Fatalf("setup failed! -> %v", dataErr)
+		}
+		want := newDataStore(data)
+
+		store := newEmptyDataStore()
+		store.add(item)
+		err := store.delete(item)
+
 		if err != nil {
 			t.Errorf("Unexpected error thrown! Got: %v", err)
 		}
@@ -236,10 +273,14 @@ func TestDataStoreDirectDelete(t *testing.T) {
 			"high",
 			false,
 		)
-		want := testDataStore([]ToDoItem{})
-		
-		store := NewDataStore()
-		err := store.Delete(item)
+		dataErr, data := toDoMapper([]ToDoItem{})
+		if dataErr != nil {
+			t.Fatalf("setup failed! -> %v", dataErr)
+		}
+		want := newDataStore(data)
+
+		store := newEmptyDataStore()
+		err := store.delete(item)
 
 		if err != ErrCannotDelete {
 			t.Fatal("Error not thrown")
@@ -257,20 +298,24 @@ func TestDataStoreChannelDelete(t *testing.T) {
 			"high",
 			false,
 		)
-		want := testDataStore([]ToDoItem{})
-		
-		store := NewDataStore()
-		store.Add(item)
+		dataErr, data := toDoMapper([]ToDoItem{})
+		if dataErr != nil {
+			t.Fatalf("setup failed! -> %v", dataErr)
+		}
+		want := newDataStore(data)
+
+		store := newEmptyDataStore()
+		store.add(item)
 		errReturnChan := make(chan error)
 		dataReturnChan := make(chan []ToDoItem)
-		store.requests <- DbRequest{
+		store.requests <- dbRequest{
 			Delete,
 			item,
 			errReturnChan,
 			dataReturnChan,
 		}
-		err := <- errReturnChan
-		
+		err := <-errReturnChan
+
 		if err != nil {
 			t.Errorf("Unexpected error thrown! Got: %v", err)
 		}
@@ -285,18 +330,22 @@ func TestDataStoreChannelDelete(t *testing.T) {
 			"high",
 			false,
 		)
-		want := testDataStore([]ToDoItem{})
-		
-		store := NewDataStore()
+		dataErr, data := toDoMapper([]ToDoItem{})
+		if dataErr != nil {
+			t.Fatalf("setup failed! -> %v", dataErr)
+		}
+		want := newDataStore(data)
+
+		store := newEmptyDataStore()
 		errReturnChan := make(chan error)
 		dataReturnChan := make(chan []ToDoItem)
-		store.requests <- DbRequest{
+		store.requests <- dbRequest{
 			Delete,
 			item,
 			errReturnChan,
 			dataReturnChan,
 		}
-		err := <- errReturnChan
+		err := <-errReturnChan
 
 		if err != ErrCannotDelete {
 			t.Fatal("Error not thrown")
@@ -310,9 +359,13 @@ func TestDataStoreChannelDelete(t *testing.T) {
 func TestDataStoreDirectRead(t *testing.T) {
 	t.Run("Reading datastore", func(t *testing.T) {
 		items := populatedToDoList()
-		store := testDataStore(items)
+		dataErr, data := toDoMapper(items)
+		if dataErr != nil {
+			t.Fatalf("setup failed! -> %v", dataErr)
+		}
+		store := newDataStore(data)
 
-		got := store.Read()
+		got := store.read()
 
 		if !equalSlicesNoOrder(items, got) {
 			t.Errorf("want %v, got %v", items, got)
@@ -322,24 +375,28 @@ func TestDataStoreDirectRead(t *testing.T) {
 func TestDataStoreChannelRead(t *testing.T) {
 	t.Run("Reading datastore", func(t *testing.T) {
 		items := populatedToDoList()
-		store := testDataStore(items)
-		
+		dataErr, data := toDoMapper(items)
+		if dataErr != nil {
+			t.Fatalf("setup failed! -> %v", dataErr)
+		}
+		store := newDataStore(data)
+
 		errReturnChan := make(chan error)
 		dataReturnChan := make(chan []ToDoItem)
-		dbr := DbRequest{	// Whole thing hangs up here for fuck knows why
-			Read,			//
-			ToDoItem{},		//  X    X
-			errReturnChan,	//    __  '
-			dataReturnChan,	//  /    \
+		dbr := dbRequest{
+			Read,
+			ToDoItem{},
+			errReturnChan,
+			dataReturnChan,
 		}
 		store.requests <- dbr
-		err := <- errReturnChan
-		got := <- dataReturnChan
+		err := <-errReturnChan
+		got := <-dataReturnChan
 
 		if err != nil {
 			t.Errorf("Unexpected error thrown! Got: %v", err)
 		}
-		if got == nil {
+		if got == nil || reflect.DeepEqual(got, []ToDoItem{}) {
 			t.Fatal("No data returned!")
 		}
 		if !equalSlicesNoOrder(items, got) {
@@ -357,7 +414,7 @@ func populatedToDoList() []ToDoItem {
 		"kill",
 	}
 	var items []ToDoItem
-	for _, title := range(titles) {
+	for _, title := range titles {
 		item := ConstructToDoItem(
 			Title(title),
 			"high",
@@ -368,16 +425,19 @@ func populatedToDoList() []ToDoItem {
 	return items
 }
 
-func testDataStore(items []ToDoItem) DataStore {
+var ErrOverWritten = errors.New("item overwritten")
+
+func toDoMapper(data []ToDoItem) (error, map[Id]ToDoItem) {
 	dataMap := make(map[Id]ToDoItem)
-	for _, item := range(items) {
-		dataKey := item.Id
-		dataMap[dataKey] = item
+	var err error
+	for _, item := range(data) {
+		_, itemExists := dataMap[item.Id]
+		if itemExists {
+			err = ErrOverWritten
+		}
+		dataMap[item.Id] = item
 	}
-	return DataStore{
-		dataMap,
-		make(chan DbRequest),
-	}
+	return err, dataMap
 }
 
 func equalData(a, b map[Id]ToDoItem) bool {
@@ -385,9 +445,9 @@ func equalData(a, b map[Id]ToDoItem) bool {
 		return false
 	}
 	present := make(chan bool)
-	for _, item := range(a) {
+	for _, item := range a {
 		go func(i ToDoItem, c chan bool) {
-			for _, bItem := range(b) {
+			for _, bItem := range b {
 				if bItem == i {
 					c <- true
 					return
@@ -396,9 +456,9 @@ func equalData(a, b map[Id]ToDoItem) bool {
 			c <- false
 		}(item, present)
 	}
-	for _, item := range(b) {
+	for _, item := range b {
 		go func(i ToDoItem, c chan bool) {
-			for _, aItem := range(a) {
+			for _, aItem := range a {
 				if aItem == i {
 					c <- true
 					return
@@ -408,8 +468,8 @@ func equalData(a, b map[Id]ToDoItem) bool {
 		}(item, present)
 	}
 
-	for i := 0; i < len(a) + len(b); i++ {
-		if ! <- present {
+	for i := 0; i < len(a)+len(b); i++ {
+		if !<-present {
 			return false
 		}
 	}
@@ -419,24 +479,49 @@ func equalData(a, b map[Id]ToDoItem) bool {
 func TestEqualData(t *testing.T) {
 	t.Run("data is equal", func(t *testing.T) {
 		items := populatedToDoList()
-		a := testDataStore(items)
-		b := testDataStore(items)
+		dataErr, data := toDoMapper(items)
+		if dataErr != nil {
+			t.Fatalf("setup failed! -> %v", dataErr)
+		}
+		a := newDataStore(data)
+		dataErr, data = toDoMapper(items)
+		if dataErr != nil {
+			t.Fatalf("setup failed! -> %v", dataErr)
+		}
+		b := newDataStore(data)
 		if !equalData(a.data, b.data) {
 			t.Errorf("Data was not considered equal! %v != %v", a.data, b.data)
 		}
 	})
 	t.Run("data is not equal", func(t *testing.T) {
 		items := populatedToDoList()
-		a := testDataStore(items)
-		b := testDataStore(items[:2])
+		dataErr, data := toDoMapper(items)
+		if dataErr != nil {
+			t.Fatalf("setup failed! -> %v", dataErr)
+		}
+		a := newDataStore(data)
+		dataErr, data = toDoMapper(items[:2])
+		if dataErr != nil {
+			t.Fatalf("setup failed! -> %v", dataErr)
+		}
+		b := newDataStore(data)
 		if equalData(a.data, b.data) {
 			t.Errorf("Data was considered equal! %v == %v", a.data, b.data)
 		}
 	})
 	t.Run("data is still not equal", func(t *testing.T) {
-		items := populatedToDoList()
-		a := testDataStore(items)
-		b := testDataStore(append([]ToDoItem{items[1]}, items[:1]...))
+		items := populatedToDoList()		
+		dataErr, data := toDoMapper(items)
+		if dataErr != nil {
+			t.Fatalf("setup failed! -> %v", dataErr)
+		}
+		a := newDataStore(data)
+		dataErr, data = toDoMapper(append([]ToDoItem{items[1]}, items[:1]...))
+		if dataErr != nil {
+			t.Fatalf("setup failed! -> %v", dataErr)
+		}
+		b := newDataStore(data)
+		
 		if equalData(a.data, b.data) {
 			t.Errorf("Data was considered equal! %v == %v", a.data, b.data)
 		}
@@ -448,9 +533,9 @@ func equalSlicesNoOrder(a, b []ToDoItem) bool {
 		return false
 	}
 	present := make(chan bool)
-	for _, item := range(a) {
+	for _, item := range a {
 		go func(i ToDoItem, c chan bool) {
-			for _, bItem := range(b) {
+			for _, bItem := range b {
 				if bItem == i {
 					c <- true
 					return
@@ -459,9 +544,9 @@ func equalSlicesNoOrder(a, b []ToDoItem) bool {
 			c <- false
 		}(item, present)
 	}
-	for _, item := range(b) {
+	for _, item := range b {
 		go func(i ToDoItem, c chan bool) {
-			for _, aItem := range(a) {
+			for _, aItem := range a {
 				if aItem == i {
 					c <- true
 					return
@@ -471,8 +556,8 @@ func equalSlicesNoOrder(a, b []ToDoItem) bool {
 		}(item, present)
 	}
 
-	for i := 0; i < len(a) + len(b); i++ {
-		if ! <- present {
+	for i := 0; i < len(a)+len(b); i++ {
+		if !<-present {
 			return false
 		}
 	}
@@ -493,7 +578,7 @@ func TestEqualSlicesNoOrder(t *testing.T) {
 	t.Run("Not Equal", func(t *testing.T) {
 		a := populatedToDoList()
 		splitPoint := 3
-		b := append(a[splitPoint:], a[:splitPoint + 1]...)
+		b := append(a[splitPoint:], a[:splitPoint+1]...)
 		equal := equalSlicesNoOrder(a, b)
 
 		if equal {
@@ -503,7 +588,7 @@ func TestEqualSlicesNoOrder(t *testing.T) {
 	t.Run("Still Not Equal", func(t *testing.T) {
 		a := populatedToDoList()
 		splitPoint := 3
-		b := append(a[splitPoint:], a[:splitPoint - 1]...)
+		b := append(a[splitPoint:], a[:splitPoint-1]...)
 		equal := equalSlicesNoOrder(a, b)
 
 		if equal {

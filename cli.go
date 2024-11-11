@@ -15,9 +15,11 @@ func FInput(r io.Reader) string {
 	var input string
 	var char rune
 	var err error
-	for err = nil ; err == nil ; {
+	for err = nil; err == nil; {
 		_, err = fmt.Fscanf(r, "%c", &char)
-		if char == '\n' {break}
+		if char == '\n' {
+			break
+		}
 		input += string(char)
 	}
 	fmt.Println()
@@ -43,4 +45,3 @@ func printToDoItem(item ToDoItem) {
 	}
 	fmt.Printf("| %s | %s | %s |\n", item.Title, item.Priority, status)
 }
-
