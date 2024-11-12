@@ -26,7 +26,13 @@ func ConstructToDoItem(t Title, p Priority, c Complete) ToDoItem {
 }
 
 type inMemoryDataStore struct {
-	data     map[Id]ToDoItem
+	data map[Id]ToDoItem
+}
+
+func newEmptyInMemoryDataStore() inMemoryDataStore {
+	return inMemoryDataStore{
+		make(map[Id]ToDoItem),
+	}
 }
 
 func (d inMemoryDataStore) read() []ToDoItem {

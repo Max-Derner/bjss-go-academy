@@ -21,9 +21,9 @@ type action int64
 
 const (
 	Create action = iota
+	Read
 	Update
 	Delete
-	Read
 )
 
 // Use for sending requests to DB
@@ -39,25 +39,22 @@ type dbRequest struct {
 	dataReturnChan  chan []ToDoItem
 }
 
-func NewDataStore(data map[Id]ToDoItem) DataAccessLayer {
-	db := inMemoryDataStore{
-		data,
-	}
+func NewDataAccessLayer(db DataStore) DataAccessLayer {
 	dal := DataAccessLayer{
-		&db,
+		db,
 		make(chan dbRequest),
 	}
 	go dal.act()
 	return dal
 }
 
-func NewEmptyDataStore() DataAccessLayer {
-	data := make(map[Id]ToDoItem)
-	return NewDataStore(data)
+func NewEmptyDAL() DataAccessLayer {
+	db := newEmptyInMemoryDataStore()
+	return NewDataAccessLayer(&db)
 }
 
 type DataAccessLayer struct {
-	db DataStore
+	db       DataStore
 	requests chan dbRequest
 }
 
@@ -71,7 +68,9 @@ func (d DataAccessLayer) Create(item ToDoItem) error {
 		dataChan,
 	}
 	err := <-errChan
+	close(errChan)
 	<-dataChan
+	close(dataChan)
 	return err
 }
 
@@ -85,7 +84,9 @@ func (d DataAccessLayer) Update(item ToDoItem) error {
 		dataChan,
 	}
 	err := <-errChan
+	close(errChan)
 	<-dataChan
+	close(dataChan)
 	return err
 }
 
@@ -99,7 +100,9 @@ func (d DataAccessLayer) Delete(item ToDoItem) error {
 		dataChan,
 	}
 	err := <-errChan
+	close(errChan)
 	<-dataChan
+	close(dataChan)
 	return err
 }
 
@@ -113,15 +116,15 @@ func (d DataAccessLayer) Read() []ToDoItem {
 		dataChan,
 	}
 	<-errChan
+	close(errChan)
 	data := <-dataChan
+	close(dataChan)
 	return data
 }
 
 func (request *dbRequest) complete(err error, data []ToDoItem) {
 	request.errorReturnChan <- err
-	close(request.errorReturnChan)
 	request.dataReturnChan <- data
-	close(request.dataReturnChan)
 }
 
 func (d *DataAccessLayer) act() {

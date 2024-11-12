@@ -5,7 +5,6 @@ import (
 	"testing"
 )
 
-
 func TestChannelCreate(t *testing.T) {
 	t.Run("Add value to store", func(t *testing.T) {
 		dataKey := "Keep sanity"
@@ -20,10 +19,11 @@ func TestChannelCreate(t *testing.T) {
 		if err != nil {
 			t.Fatalf("setup failed! -> %v", err)
 		}
-		want := NewDataStore(data)
+		want := NewDataAccessLayer(&inMemoryDataStore{data})
 
-		store := NewEmptyDataStore()
-		store.requests <- dbRequest{
+		db := newEmptyInMemoryDataStore()
+		dal := NewDataAccessLayer(&db)
+		dal.requests <- dbRequest{
 			Create,
 			item,
 			errChan,
@@ -34,8 +34,8 @@ func TestChannelCreate(t *testing.T) {
 		if err != nil {
 			t.Errorf("Unexpected error thrown! %v", err)
 		}
-		if !equalSlicesNoOrder(want.db.read(), store.db.read()) {
-			t.Errorf("want %v, got %v", want.db.read(), store.db.read())
+		if !equalSlicesNoOrder(want.db.read(), dal.db.read()) {
+			t.Errorf("want %v, got %v", want.db.read(), dal.db.read())
 		}
 	})
 	t.Run("Add existing value to store", func(t *testing.T) {
@@ -51,9 +51,11 @@ func TestChannelCreate(t *testing.T) {
 		if dataErr != nil {
 			t.Fatalf("setup failed! -> %v", dataErr)
 		}
-		want := NewDataStore(data)
+		db := inMemoryDataStore{data}
+		want := NewDataAccessLayer(&db)
 
-		dal := NewDataStore(data)
+		db2 := inMemoryDataStore{data}
+		dal := NewDataAccessLayer(&db2)
 		dal.requests <- dbRequest{
 			Create,
 			item,
@@ -83,9 +85,11 @@ func TestAPICreate(t *testing.T) {
 		if dataErr != nil {
 			t.Fatalf("setup failed! -> %v", dataErr)
 		}
-		want := NewDataStore(data)
+		db := inMemoryDataStore{data}
+		want := NewDataAccessLayer(&db)
 
-		dal := NewEmptyDataStore()
+		db2 := inMemoryDataStore{make(map[Id]ToDoItem)}
+		dal := NewDataAccessLayer(&db2)
 		err := dal.Create(item)
 
 		if err != nil {
@@ -107,23 +111,26 @@ func TestAPICreate(t *testing.T) {
 		if err != nil {
 			t.Fatalf("setup failed! -> %v", err)
 		}
-		want := NewDataStore(data)
+		db := inMemoryDataStore{data}
+		want := NewDataAccessLayer(&db)
 
-		store := NewEmptyDataStore()
-		store.Create(item)
-		err = store.Create(item)
+		db2 := inMemoryDataStore{make(map[Id]ToDoItem)}
+		dal := NewDataAccessLayer(&db2)
+		dal.Create(item)
+		err = dal.Create(item)
 
 		if err != ErrCannotCreate {
 			t.Fatal("Error not thrown")
 		}
 
-		if !equalSlicesNoOrder(want.db.read(), store.db.read()) {
-			t.Errorf("want %v, got %v", want.db.read(), store.db.read())
+		if !equalSlicesNoOrder(want.db.read(), dal.db.read()) {
+			t.Errorf("want %v, got %v", want.db.read(), dal.db.read())
 		}
 	})
 }
 func BenchmarkAPICreateConcurrency(t *testing.B) {
-	dal := NewEmptyDataStore()
+	db := newEmptyInMemoryDataStore()
+	dal := NewDataAccessLayer(&db)
 	title := Title("Something")
 	priority := Priority("something else")
 	expectedNumItems := t.N
@@ -162,9 +169,11 @@ func TestChannelUpdate(t *testing.T) {
 		if dataErr != nil {
 			t.Fatalf("setup failed! -> %v", dataErr)
 		}
-		want := NewDataStore(data)
+		db := inMemoryDataStore{data}
+		want := NewDataAccessLayer(&db)
 
-		dal := NewDataStore(map[Id]ToDoItem{initialItem.Id: initialItem})
+		db2 := inMemoryDataStore{map[Id]ToDoItem{initialItem.Id: initialItem}}
+		dal := NewDataAccessLayer(&db2)
 		errReturnChan := make(chan error)
 		dataReturnChan := make(chan []ToDoItem)
 		dal.requests <- dbRequest{
@@ -193,9 +202,11 @@ func TestChannelUpdate(t *testing.T) {
 		if dataErr != nil {
 			t.Fatalf("setup failed! -> %v", dataErr)
 		}
-		want := NewDataStore(data)
+		db := inMemoryDataStore{data}
+		want := NewDataAccessLayer(&db)
 
-		dal := NewEmptyDataStore()
+		db2 := inMemoryDataStore{make(map[Id]ToDoItem)}
+		dal := NewDataAccessLayer(&db2)
 		errReturnChan := make(chan error)
 		dataReturnChan := make(chan []ToDoItem)
 		dal.requests <- dbRequest{
@@ -230,9 +241,11 @@ func TestAPIUpdate(t *testing.T) {
 		if dataErr != nil {
 			t.Fatalf("setup failed! -> %v", dataErr)
 		}
-		want := NewDataStore(data)
+		db := inMemoryDataStore{data}
+		want := NewDataAccessLayer(&db)
 
-		dal := NewDataStore(map[Id]ToDoItem{initialItem.Id: initialItem})
+		db2 := inMemoryDataStore{map[Id]ToDoItem{initialItem.Id: initialItem}}
+		dal := NewDataAccessLayer(&db2)
 		err := dal.Update(updateItem)
 
 		if err != nil {
@@ -254,17 +267,19 @@ func TestAPIUpdate(t *testing.T) {
 		if dataErr != nil {
 			t.Fatalf("setup failed! -> %v", dataErr)
 		}
-		want := NewDataStore(data)
+		db := inMemoryDataStore{data}
+		want := NewDataAccessLayer(&db)
 
-		store := NewEmptyDataStore()
-		err := store.Update(item)
+		db2 := inMemoryDataStore{make(map[Id]ToDoItem)}
+		dal := NewDataAccessLayer(&db2)
+		err := dal.Update(item)
 
 		if err != ErrCannotUpdate {
 			t.Fatal("Error not thrown")
 		}
 
-		if !equalSlicesNoOrder(want.db.read(), store.db.read()) {
-			t.Errorf("want %v, got %v", want.db.read(), store.db.read())
+		if !equalSlicesNoOrder(want.db.read(), dal.db.read()) {
+			t.Errorf("want %v, got %v", want.db.read(), dal.db.read())
 		}
 	})
 }
@@ -279,12 +294,14 @@ func TestChannelDelete(t *testing.T) {
 		if dataErr != nil {
 			t.Fatalf("setup failed! -> %v", dataErr)
 		}
-		want := NewDataStore(data)
+		db := inMemoryDataStore{data}
+		want := NewDataAccessLayer(&db)
 
-		store := NewDataStore(map[Id]ToDoItem{item.Id: item})
+		db2 := inMemoryDataStore{map[Id]ToDoItem{item.Id: item}}
+		dal := NewDataAccessLayer(&db2)
 		errReturnChan := make(chan error)
 		dataReturnChan := make(chan []ToDoItem)
-		store.requests <- dbRequest{
+		dal.requests <- dbRequest{
 			Delete,
 			item,
 			errReturnChan,
@@ -296,8 +313,8 @@ func TestChannelDelete(t *testing.T) {
 			t.Errorf("Unexpected error thrown! Got: %v", err)
 		}
 
-		if !equalSlicesNoOrder(want.db.read(), store.db.read()) {
-			t.Errorf("want %v, got %v", want.db.read(), store.db.read())
+		if !equalSlicesNoOrder(want.db.read(), dal.db.read()) {
+			t.Errorf("want %v, got %v", want.db.read(), dal.db.read())
 		}
 	})
 	t.Run("Deleting non-existent item", func(t *testing.T) {
@@ -310,12 +327,14 @@ func TestChannelDelete(t *testing.T) {
 		if dataErr != nil {
 			t.Fatalf("setup failed! -> %v", dataErr)
 		}
-		want := NewDataStore(data)
+		db := inMemoryDataStore{data}
+		want := NewDataAccessLayer(&db)
 
-		store := NewEmptyDataStore()
+		db2 := inMemoryDataStore{make(map[Id]ToDoItem)}
+		dal := NewDataAccessLayer(&db2)
 		errReturnChan := make(chan error)
 		dataReturnChan := make(chan []ToDoItem)
-		store.requests <- dbRequest{
+		dal.requests <- dbRequest{
 			Delete,
 			item,
 			errReturnChan,
@@ -327,8 +346,8 @@ func TestChannelDelete(t *testing.T) {
 			t.Fatal("Error not thrown")
 		}
 
-		if !equalSlicesNoOrder(want.db.read(), store.db.read()) {
-			t.Errorf("want %v, got %v", want.db.read(), store.db.read())
+		if !equalSlicesNoOrder(want.db.read(), dal.db.read()) {
+			t.Errorf("want %v, got %v", want.db.read(), dal.db.read())
 		}
 	})
 }
@@ -343,17 +362,19 @@ func TestAPIDelete(t *testing.T) {
 		if dataErr != nil {
 			t.Fatalf("setup failed! -> %v", dataErr)
 		}
-		want := NewDataStore(data)
+		db := inMemoryDataStore{data}
+		want := NewDataAccessLayer(&db)
 
-		store := NewDataStore(map[Id]ToDoItem{item.Id: item})
-		err := store.Delete(item)
+		db2 := inMemoryDataStore{map[Id]ToDoItem{item.Id: item}}
+		dal := NewDataAccessLayer(&db2)
+		err := dal.Delete(item)
 
 		if err != nil {
 			t.Errorf("Unexpected error thrown! Got: %v", err)
 		}
 
-		if !equalSlicesNoOrder(want.db.read(), store.db.read()) {
-			t.Errorf("want %v, got %v", want.db.read(), store.db.read())
+		if !equalSlicesNoOrder(want.db.read(), dal.db.read()) {
+			t.Errorf("want %v, got %v", want.db.read(), dal.db.read())
 		}
 	})
 	t.Run("Deleting non-existent item", func(t *testing.T) {
@@ -366,17 +387,19 @@ func TestAPIDelete(t *testing.T) {
 		if dataErr != nil {
 			t.Fatalf("setup failed! -> %v", dataErr)
 		}
-		want := NewDataStore(data)
+		db := inMemoryDataStore{data}
+		want := NewDataAccessLayer(&db)
 
-		store := NewEmptyDataStore()
-		err := store.Delete(item)
+		db2 := inMemoryDataStore{make(map[Id]ToDoItem)}
+		dal := NewDataAccessLayer(&db2)
+		err := dal.Delete(item)
 
 		if err != ErrCannotDelete {
 			t.Fatal("Error not thrown")
 		}
 
-		if !equalSlicesNoOrder(want.db.read(), store.db.read()) {
-			t.Errorf("want %v, got %v", want.db.read(), store.db.read())
+		if !equalSlicesNoOrder(want.db.read(), dal.db.read()) {
+			t.Errorf("want %v, got %v", want.db.read(), dal.db.read())
 		}
 	})
 }
@@ -387,7 +410,8 @@ func TestChannelRead(t *testing.T) {
 		if dataErr != nil {
 			t.Fatalf("setup failed! -> %v", dataErr)
 		}
-		store := NewDataStore(data)
+		db := inMemoryDataStore{data}
+		dal := NewDataAccessLayer(&db)
 
 		errReturnChan := make(chan error)
 		dataReturnChan := make(chan []ToDoItem)
@@ -397,7 +421,7 @@ func TestChannelRead(t *testing.T) {
 			errReturnChan,
 			dataReturnChan,
 		}
-		store.requests <- dbr
+		dal.requests <- dbr
 		err := <-errReturnChan
 		got := <-dataReturnChan
 
@@ -419,9 +443,10 @@ func TestAPIRead(t *testing.T) {
 		if dataErr != nil {
 			t.Fatalf("setup failed! -> %v", dataErr)
 		}
-		store := NewDataStore(data)
+		db := inMemoryDataStore{data}
+		dal := NewDataAccessLayer(&db)
 
-		got := store.Read()
+		got := dal.Read()
 
 		if !equalSlicesNoOrder(items, got) {
 			t.Errorf("want %v, got %v", items, got)

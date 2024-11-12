@@ -161,7 +161,8 @@ func RunCli() {
 		"update",
 		"delete",
 	}
-	db := NewEmptyDataStore()
+	db := newEmptyInMemoryDataStore()
+	dal := NewDataAccessLayer(&db)
 	for {
 		fmt.Println("\n=================================================")
 		selection := choseFromList(commandList)
@@ -169,13 +170,13 @@ func RunCli() {
 		case "exit":
 			os.Exit(0)
 		case "read":
-			cliRead(&db)
+			cliRead(&dal)
 		case "add":
-			cliAdd(&db)
+			cliAdd(&dal)
 		case "delete":
-			cliDelete(&db)
+			cliDelete(&dal)
 		case "update":
-			cliUpdate(&db)
+			cliUpdate(&dal)
 		}
 	}
 }
