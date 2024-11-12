@@ -73,19 +73,19 @@ func choseFromList(commandList []string) int {
 	}
 }
 
-func cliRead(db *dataStore) {
+func cliRead(db *DataAccessLayer) {
 	items := db.Read()
-			if len(items) == 0 {
-				fmt.Println("No items to show")
-			} else {
-				for _, item := range items {
-					printToDoItem(item)
-				}
-			}
+	if len(items) == 0 {
+		fmt.Println("No items to show")
+	} else {
+		for _, item := range items {
+			printToDoItem(item)
+		}
+	}
 }
 
-func cliAdd(db *dataStore) {
-	err := db.Add(
+func cliAdd(db *DataAccessLayer) {
+	err := db.Create(
 		cliPromptForToDoItem(),
 	)
 	if err != nil {
@@ -93,24 +93,24 @@ func cliAdd(db *dataStore) {
 	}
 }
 
-func cliDelete(db *dataStore) {
+func cliDelete(db *DataAccessLayer) {
 	items := db.Read()
-			if len(items) == 0 {
-				fmt.Println("No items in database")
-			} else {
-				for i, item := range items {
-					fmt.Printf("%d : ", i)
-					printToDoItem(item)
-				}
-				fmt.Print("Choose item to delete: ")
-				var choice int
-				fmt.Scanf("%d", &choice)
-				itemToDelete := items[choice]
-				db.Delete(itemToDelete)
-			}
+	if len(items) == 0 {
+		fmt.Println("No items in database")
+	} else {
+		for i, item := range items {
+			fmt.Printf("%d : ", i)
+			printToDoItem(item)
+		}
+		fmt.Print("Choose item to delete: ")
+		var choice int
+		fmt.Scanf("%d", &choice)
+		itemToDelete := items[choice]
+		db.Delete(itemToDelete)
+	}
 }
 
-func cliUpdate(db *dataStore) {
+func cliUpdate(db *DataAccessLayer) {
 	items := db.Read()
 	if len(items) == 0 {
 		fmt.Println("No items in database")
@@ -148,7 +148,7 @@ func cliUpdate(db *dataStore) {
 				itemToUpdate.Complete = false
 			}
 		}
-		db.update(itemToUpdate)
+		db.Update(itemToUpdate)
 	}
 }
 
