@@ -5,5 +5,8 @@ package main
 // )
 
 func main() {
-	RunCli()
+	db := inMemoryDataStore{make(map[Id]ToDoItem)}
+	dal := NewDataAccessLayer(&db)
+	go StartAPI(dal)
+	RunCli(dal)
 }

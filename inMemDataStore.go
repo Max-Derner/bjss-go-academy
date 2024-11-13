@@ -1,30 +1,5 @@
 package main
 
-import (
-	"github.com/google/uuid"
-)
-
-type Id uuid.UUID
-type Title string
-type Priority string
-type Complete bool
-
-type ToDoItem struct {
-	Id
-	Title
-	Priority
-	Complete
-}
-
-func ConstructToDoItem(t Title, p Priority, c Complete) ToDoItem {
-	return ToDoItem{
-		Id(uuid.New()),
-		t,
-		p,
-		c,
-	}
-}
-
 type inMemoryDataStore struct {
 	data map[Id]ToDoItem
 }

@@ -35,7 +35,7 @@ Each phase builds upon the previous phase and is epected to continue to work thr
 * Wrap the Data Store with the V1 REST API.
 * Use the [context] package to add a TraceID and [slog] to enable traceability of calls through the solution.
 * At the ToDo level, use CSP to support concurrent reads and concurrent safe write.
-* Use Parallel tests to validate that the solutin is concurrent safe.
+* Use Parallel tests to validate that the solution is concurrent safe.
 * Update the CLI App to use the REST API.
 * Add an JSON Data Store and use a startup value to tell the REST API which data store to use.
 

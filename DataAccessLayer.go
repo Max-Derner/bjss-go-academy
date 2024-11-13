@@ -2,7 +2,29 @@ package main
 
 import (
 	"errors"
+	"github.com/google/uuid"
 )
+
+type Id string
+type Title string
+type Priority string
+type Complete bool
+
+type ToDoItem struct {
+	Id       `json:"id"`
+	Title    `json:"title"`
+	Priority `json:"priority"`
+	Complete `json:"complete"`
+}
+
+func ConstructToDoItem(t Title, p Priority, c Complete) ToDoItem {
+	return ToDoItem{
+		Id(uuid.NewString()),
+		t,
+		p,
+		c,
+	}
+}
 
 type DataStore interface {
 	create(item ToDoItem) error
@@ -15,7 +37,7 @@ var ErrCannotCreate = errors.New("cannot create item as it already exists in dat
 var ErrCannotUpdate = errors.New("cannot update item as it does not exist in datastore")
 var ErrCannotDelete = errors.New("cannot delete item as it does not exist in datastore")
 var ErrCannotQuery = errors.New("cannot query, as item does not exist in datastore")
-var ErrUnknownAction = errors.New("Unknown action")
+var ErrUnknownAction = errors.New("unknown action")
 
 type action int64
 

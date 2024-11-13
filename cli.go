@@ -43,14 +43,18 @@ func cliPromptForToDoItem() ToDoItem {
 	return ConstructToDoItem(title, priority, false)
 }
 
-func printToDoItem(item ToDoItem) {
+func formatToDoItem(item ToDoItem) string {
 	var status string
 	if item.Complete {
 		status = "complete"
 	} else {
 		status = "incomplete"
 	}
-	fmt.Printf("| %s | %s | %s |\n", item.Title, item.Priority, status)
+	return fmt.Sprintf("| %s | %s | %s |\n", item.Title, item.Priority, status)
+}
+
+func printToDoItem(item ToDoItem) {
+	fmt.Print(formatToDoItem(item))
 }
 
 func choseFromList(commandList []string) int {
@@ -152,7 +156,7 @@ func cliUpdate(db *DataAccessLayer) {
 	}
 }
 
-func RunCli() {
+func RunCli(dal DataAccessLayer) {
 	fmt.Println("It's a todo app!")
 	commandList := []string{
 		"exit",
@@ -161,8 +165,6 @@ func RunCli() {
 		"update",
 		"delete",
 	}
-	db := newEmptyInMemoryDataStore()
-	dal := NewDataAccessLayer(&db)
 	for {
 		fmt.Println("\n=================================================")
 		selection := choseFromList(commandList)
