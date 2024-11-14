@@ -38,6 +38,27 @@ var ErrCannotUpdate = errors.New("cannot update item as it does not exist in dat
 var ErrCannotDelete = errors.New("cannot delete item as it does not exist in datastore")
 var ErrCannotQuery = errors.New("cannot query, as item does not exist in datastore")
 var ErrUnknownAction = errors.New("unknown action")
+var ErrOverWritten = errors.New("item overwritten")
+
+func toDoMapper(data []ToDoItem) (error, map[Id]ToDoItem) {
+	dataMap := make(map[Id]ToDoItem)
+	var err error
+	for _, item := range data {
+		_, itemExists := dataMap[item.Id]
+		if itemExists {
+			err = ErrOverWritten
+		}
+		dataMap[item.Id] = item
+	}
+	return err, dataMap
+}
+func toDoUnmapper(dataMap map[Id]ToDoItem) []ToDoItem {
+	var data []ToDoItem
+	for _, item := range dataMap {
+		data = append(data, item)
+	}
+	return data
+}
 
 type action int64
 

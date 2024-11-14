@@ -8,7 +8,7 @@ import (
 
 func handleError(err error, w http.ResponseWriter) {
 	if err == nil {
-	w.WriteHeader(http.StatusOK)
+		w.WriteHeader(http.StatusOK)
 	} else {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(
@@ -42,12 +42,15 @@ type readHandler struct {
 }
 
 func (h *readHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	output := "Your TODO items:\n"
 	items := h.dal.Read()
-	for _, item := range items {
-		output += formatToDoItem(item)
+	data, err := json.MarshalIndent(items, "", "  ")
+	if err != nil {
+		errorMsg := fmt.Sprintf("ERROR! %q", err)
+		fmt.Println(errorMsg)
+		w.Write([]byte(errorMsg))
+	} else {
+		w.Write([]byte(data))
 	}
-	w.Write([]byte(output))
 }
 
 type updateHandler struct {

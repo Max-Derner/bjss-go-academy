@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"reflect"
 	"testing"
 )
@@ -210,21 +209,6 @@ func populatedToDoList() []ToDoItem {
 		items = append(items, item)
 	}
 	return items
-}
-
-var ErrOverWritten = errors.New("item overwritten")
-
-func toDoMapper(data []ToDoItem) (error, map[Id]ToDoItem) {
-	dataMap := make(map[Id]ToDoItem)
-	var err error
-	for _, item := range data {
-		_, itemExists := dataMap[item.Id]
-		if itemExists {
-			err = ErrOverWritten
-		}
-		dataMap[item.Id] = item
-	}
-	return err, dataMap
 }
 
 func equalData(a, b map[Id]ToDoItem) bool {
