@@ -39,6 +39,9 @@ Each phase builds upon the previous phase and is epected to continue to work thr
 * Update the CLI App to use the REST API.
 * Add an JSON Data Store and use a startup value to tell the REST API which data store to use.
 
+### Phase 2.5 (Daniel Johnson's personal ask)
+* Serve some web templates up for a frontend
+
 ### Phase 3
 
 * Add a V2 API to the REST API that supports multiple users
