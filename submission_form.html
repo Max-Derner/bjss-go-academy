@@ -1,0 +1,19 @@
+{{if .Success}}
+    <h1>Submitted!</h1>
+{{else}}
+    <h1>FAILED!</h1>
+{{end}}
+    <h1>Contact</h1>
+    <form method="POST">
+        <label for="id">Id:</label><br />
+        <input type="text" id="id" name="id"><br />
+        <label for="title">Title:</label><br />
+        <input type="text" id="title" name="title"><br />
+        <label for="priority">Priority:</label><br />
+        <input type="text" id="priority" name="priority"><br />
+        <label for="complete">Complete</label>
+        <input type="radio" id="complete" name="complete" value="true"><br />
+        <label for="incomplete">Incomplete</label>
+        <input type="radio" id="incomplete" name="complete" value="false"><br />
+        <input type="submit">
+    </form>
